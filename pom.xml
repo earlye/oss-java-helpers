@@ -14,12 +14,12 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.apache-commons-collections4>4.0</version.apache-commons-collections4>
     <version.guava>18.0</version.guava>
-    <version.jackson-databind>2.3.2</version.jackson-databind>
+    <version.jackson-databind>2.7.2</version.jackson-databind>
+    <version.jackson-datatype-guava>2.7.2</version.jackson-datatype-guava>
     <version.junit>4.11</version.junit>
     <version.mockito>1.9.5</version.mockito>
+    <version.reflections>0.9.10</version.reflections>
     <version.slf4j>1.7.7</version.slf4j>
-<!--    <version.sonar-jacoco-listeners>2.4</version.sonar-jacoco-listeners> -->
-
   </properties>
 
   <dependencies>
@@ -57,6 +57,19 @@
       <artifactId>guava</artifactId>
       <version>${version.guava}</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-guava</artifactId>
+      <version>${version.jackson-datatype-guava}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>${version.reflections}</version>
+    </dependency>
+    
   </dependencies>
 
   <build>

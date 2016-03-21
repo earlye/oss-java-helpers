@@ -1,10 +1,16 @@
 package com.clearcapital.oss.java;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.util.ClasspathHelper;
 
 import com.clearcapital.oss.java.exceptions.DeserializingException;
 import com.clearcapital.oss.java.exceptions.ReflectionPathException;
@@ -90,7 +96,7 @@ public class ReflectionHelpers {
      * @param reflectionPath
      *            a hierarchical list of field names in which to walk down in order to acquire a value
      * @param serializer
-     *            TODO
+     * 
      * @return an object representation of the value of the specified reflectionPath
      * @throws ReflectionPathException
      *             if any portion of the reflectionPath is invalid, not declared or not accessible
@@ -115,8 +121,6 @@ public class ReflectionHelpers {
                 break;
             }
             if (isMapKey(pathEntry)) {
-                // TODO: CCP-3568. After consulting with Jesse, there is a room for improvement.
-                // However, it doesn't need to be addressed right away.
                 String keyString = getMapKey(pathEntry);
                 Map<?, ?> map = (Map<?, ?>) fieldValue;
 
@@ -281,6 +285,45 @@ public class ReflectionHelpers {
         } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new ReflectionPathException("Could not set field \"" + name + "\" in object", e);
         }
+    }
+
+	public static Reflections getReflections(final Collection<String> packageNames) {
+		Reflections reflections = null;
+		for (String packageName : packageNames) {
+            Reflections packageReflections = getReflections(packageName);
+			if (reflections == null) {
+				reflections = packageReflections;
+			} else {
+				reflections.merge(packageReflections);
+			}
+		}
+		return reflections;
+	}
+
+    public static Reflections getReflections(final String packageName) {
+        Reflections packageReflections = new Reflections(ClasspathHelper.forPackage(packageName),
+                new TypeAnnotationsScanner(), new SubTypesScanner());
+        return packageReflections;
+    }
+
+    public static Reflections getReflections(final Package[] packages) {
+        Reflections reflections = null;
+        for (Package item : packages) {
+            Reflections packageReflections = new Reflections(ClasspathHelper.forPackage(item.getName()),
+                    new TypeAnnotationsScanner(), new SubTypesScanner());
+            if (reflections == null) {
+                reflections = packageReflections;
+            } else {
+                reflections.merge(packageReflections);
+            }
+        }
+        return reflections;
+    }
+
+    public static Set<Class<?>> getTypesAnnotatedWith(String packageName,
+            final Class<? extends Annotation> annotation) {
+        Reflections reflections = getReflections(packageName);
+        return reflections.getTypesAnnotatedWith(annotation);
     }
 
 }

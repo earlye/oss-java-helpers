@@ -1,12 +1,15 @@
 package com.clearcapital.oss.json;
 
 import java.io.IOException;
+import java.util.Set;
 
+import com.clearcapital.oss.java.ReflectionHelpers;
 import com.clearcapital.oss.java.Serializer;
 import com.clearcapital.oss.java.exceptions.DeserializingException;
 import com.clearcapital.oss.java.exceptions.SerializingException;
 import com.clearcapital.oss.json.serializers.NullKeyAsEmptySerializer;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,10 +20,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 
 public class JsonSerializer implements Serializer {
 
-    public final static JsonSerializer INSTANCE = new JsonSerializer();
+    private final static JsonSerializer INSTANCE = new JsonSerializer();
 
     final ObjectMapper objectMapper;
 
@@ -46,6 +50,10 @@ public class JsonSerializer implements Serializer {
         SimpleModule globalSerializers = new SimpleModule();
         globalSerializers.addSerializer(Long.class, ToStringSerializer.instance);
         mapper.registerModule(globalSerializers);
+        
+        mapper.registerModule(new GuavaModule());
+
+        registerSubTypes(mapper, "/");
 
         return mapper;
     }
@@ -57,7 +65,7 @@ public class JsonSerializer implements Serializer {
     public ObjectMapper getObjectMapper() {
         return objectMapper;
     }
-
+    
     @Override
     public <T> T getObject(String jsonRepresentation, Class<T> targetType) throws DeserializingException {
         if (jsonRepresentation == null || targetType == null) {
@@ -91,6 +99,14 @@ public class JsonSerializer implements Serializer {
             return getObjectMapper().writeValueAsString(objectRepresentation);
         } catch (JsonProcessingException e) {
             throw new SerializingException("Could not convert object to Json String", e);
+        }
+    }
+
+    private static void registerSubTypes(ObjectMapper mapper, String packageName) {
+        Set<Class<?>> result = ReflectionHelpers.getTypesAnnotatedWith(packageName, JsonTypeName.class);
+
+        for (Class<?> jsonType : result) {
+            mapper.registerSubtypes(jsonType);
         }
     }
 

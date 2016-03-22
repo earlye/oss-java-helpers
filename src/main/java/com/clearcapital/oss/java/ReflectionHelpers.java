@@ -326,4 +326,9 @@ public class ReflectionHelpers {
         return reflections.getTypesAnnotatedWith(annotation);
     }
 
+	public static Set<Class<?>> getTypesAnnotatedWith(Collection<String> packageNames, Class<? extends Annotation> annotation) {
+        Reflections reflections = getReflections(packageNames);
+        return reflections.getTypesAnnotatedWith(annotation);
+	}
+
 }

@@ -16,7 +16,7 @@
     <version.guava>18.0</version.guava>
     <version.jackson-databind>2.9.10.8</version.jackson-databind>
     <version.jackson-datatype-guava>2.8.11</version.jackson-datatype-guava>
-    <version.junit>4.11</version.junit>
+    <version.junit>4.13.1</version.junit>
     <version.mockito>1.9.5</version.mockito>
     <version.reflections>0.9.10</version.reflections>
     <version.slf4j>1.7.7</version.slf4j>
